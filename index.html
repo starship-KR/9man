@@ -2,152 +2,110 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StarShip MAP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StarShip</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f0f3f5;
+      font-family: sans-serif;
       margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
       padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .main {
-      display: flex;
-      flex-wrap: wrap;
       gap: 20px;
-      width: 100%;
-      max-width: 1200px;
     }
-    #map-container {
+
+    .map-container {
       position: relative;
       width: 600px;
       height: 600px;
-      background: url('grid.png') no-repeat;
+      background-image: url('grid.png');
       background-size: contain;
-      background-position: center;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      flex-shrink: 0;
-    }
-    #form-container {
-      flex: 1;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      min-width: 280px;
-    }
-    form label {
-      display: block;
-      margin: 10px 0 5px;
-      font-weight: bold;
-    }
-    input, select {
-      width: 100%;
-      padding: 8px;
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
-    button {
-      width: 100%;
-      padding: 10px;
-      background: #3498db;
-      border: none;
-      color: white;
-      font-size: 15px;
-      font-weight: bold;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .info-grid {
-      margin-top: 30px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 16px;
-      width: 100%;
-      max-width: 1200px;
-    }
-    .category {
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.05);
-    }
-    .category h3 {
-      margin: 0 0 10px;
-      border-bottom: 2px solid #3498db;
-      padding-bottom: 4px;
-    }
-    .marker-list {
-      list-style: none;
-      padding-left: 10px;
-      margin: 0;
-      max-height: 140px;
-      overflow-y: auto;
-      font-size: 14px;
-    }
-    .marker-list li {
-      margin-bottom: 6px;
-      word-break: break-word;
+      background-repeat: no-repeat;
+      background-position: bottom left;
+      border: 1px solid #000;
     }
 
     .marker {
       position: absolute;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transform: translate(-50%, -50%);
-      pointer-events: auto;
-    }
-
-    .marker-dot {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       background-color: red;
       border-radius: 50%;
-      box-shadow: 0 0 3px black;
+      transform: translate(-50%, 50%);
     }
 
     .marker-label {
-      margin-top: 4px;
-      font-size: 13px;
-      font-weight: bold;
+      position: absolute;
+      white-space: nowrap;
+      font-size: 12px;
       background: white;
-      padding: 2px 5px;
-      border-radius: 4px;
-      box-shadow: 0 0 2px rgba(0,0,0,0.1);
+      padding: 1px 3px;
+      border: 1px solid #ccc;
+      transform: translate(5px, -50%);
+      left: 100%;
+      top: 50%;
+    }
+
+    .form-container {
+      display: flex;
+      flex-direction: column;
+      width: 300px;
+    }
+
+    .form-container input,
+    .form-container select,
+    .form-container button {
+      margin-bottom: 10px;
+      padding: 5px;
+    }
+
+    .categories {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .category-box {
+      flex: 1;
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 100px;
+    }
+
+    .category-box h3 {
+      margin-top: 0;
+      border-bottom: 1px solid #ccc;
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <div class="map-container" id="map"></div>
 
-<div class="main">
-  <div id="map-container"></div>
-
-  <div id="form-container">
-    <h2>StarShip</h2>
-    <form id="marker-form">
-      <label for="name">이름</label>
-      <input type="text" id="name" required />
-      <label for="x">X 좌표 (0~600)</label>
-      <input type="number" id="x" min="0" max="600" required />
-      <label for="y">Y 좌표 (0~600)</label>
-      <input type="number" id="y" min="0" max="600" required />
-      <label for="color">색상</label>
+    <div class="form-container">
+      <h2>StarShip</h2>
+      <label>이름</label>
+      <input type="text" id="name" />
+      <label>X 좌표 (0~600)</label>
+      <input type="number" id="x" min="0" max="600" />
+      <label>Y 좌표 (0~600)</label>
+      <input type="number" id="y" min="0" max="600" />
+      <label>색상</label>
       <select id="color">
-        <option value="#e74c3c">빨강</option>
-        <option value="#e67e22">주황</option>
-        <option value="#f1c40f">노랑</option>
-        <option value="#2ecc71">초록</option>
-        <option value="#1abc9c">청록</option>
-        <option value="#3498db">파랑</option>
-        <option value="#9b59b6">보라</option>
-        <option value="#7f8c8d">회색</option>
+        <option value="red">빨강</option>
+        <option value="blue">파랑</option>
+        <option value="green">초록</option>
+        <option value="black">검정</option>
       </select>
-      <label for="category">카테고리</label>
+      <label>카테고리</label>
       <select id="category">
         <option value="지원조">지원조</option>
         <option value="1조">1조</option>
@@ -155,114 +113,52 @@
         <option value="3조">3조</option>
         <option value="적맹주">적맹주</option>
       </select>
-      <button type="submit">추가</button>
-    </form>
+      <button onclick="addMarker()">추가</button>
+    </div>
   </div>
-</div>
 
-<div class="info-grid">
-  <div class="category"><h3>지원조</h3><ul id="list-support" class="marker-list"></ul></div>
-  <div class="category"><h3>1조</h3><ul id="list-team1" class="marker-list"></ul></div>
-  <div class="category"><h3>2조</h3><ul id="list-team2" class="marker-list"></ul></div>
-  <div class="category"><h3>3조</h3><ul id="list-team3" class="marker-list"></ul></div>
-  <div class="category"><h3>적맹주</h3><ul id="list-enemy" class="marker-list"></ul></div>
-</div>
+  <div class="categories">
+    <div class="category-box" id="지원조"><h3>지원조</h3></div>
+    <div class="category-box" id="1조"><h3>1조</h3></div>
+    <div class="category-box" id="2조"><h3>2조</h3></div>
+    <div class="category-box" id="3조"><h3>3조</h3></div>
+    <div class="category-box" id="적맹주"><h3>적맹주</h3></div>
+  </div>
 
-<script>
-const map = document.getElementById('map-container');
-const form = document.getElementById('marker-form');
-const maxCoord = 600;
-let markers = JSON.parse(localStorage.getItem('markers') || '[]');
+  <script>
+    const map = document.getElementById('map');
 
-const categoryLists = {
-  '지원조': document.getElementById('list-support'),
-  '1조': document.getElementById('list-team1'),
-  '2조': document.getElementById('list-team2'),
-  '3조': document.getElementById('list-team3'),
-  '적맹주': document.getElementById('list-enemy'),
-};
+    function addMarker() {
+      const name = document.getElementById('name').value.trim();
+      const x = parseFloat(document.getElementById('x').value);
+      const y = parseFloat(document.getElementById('y').value);
+      const color = document.getElementById('color').value;
+      const category = document.getElementById('category').value;
 
-function screenToCoord(clientX, clientY) {
-  const rect = map.getBoundingClientRect();
-  const x = Math.round((clientX - rect.left) / rect.width * maxCoord);
-  const y = Math.round(((rect.bottom - clientY) / rect.height) * maxCoord);
-  return { x, y };
-}
+      if (!name || isNaN(x) || isNaN(y) || x < 0 || x > 600 || y < 0 || y > 600) {
+        alert('모든 입력을 정확히 입력해주세요.');
+        return;
+      }
 
-function coordToScreen(x, y) {
-  const rect = map.getBoundingClientRect();
-  const px = x / maxCoord * rect.width;
-  const py = (1 - y / maxCoord) * rect.height;
-  return { x: px, y: py };
-}
+      // 마커 추가
+      const marker = document.createElement('div');
+      marker.className = 'marker';
+      marker.style.left = `${x}px`;
+      marker.style.bottom = `${y}px`;
+      marker.style.backgroundColor = color;
 
-function drawMarker(marker) {
-  const pos = coordToScreen(marker.x, marker.y);
-  const el = document.createElement('div');
-  el.className = 'marker';
-  el.style.left = `${pos.x}px`;
-  el.style.top = `${pos.y}px`;
+      const label = document.createElement('div');
+      label.className = 'marker-label';
+      label.innerText = `${name} (${x}, ${y})`;
 
-  const dot = document.createElement('div');
-  dot.className = 'marker-dot';
-  dot.style.backgroundColor = marker.color;
+      marker.appendChild(label);
+      map.appendChild(marker);
 
-  const label = document.createElement('div');
-  label.className = 'marker-label';
-  label.textContent = marker.name;
-
-  el.appendChild(dot);
-  el.appendChild(label);
-
-  el.title = `클릭 시 삭제`;
-  el.addEventListener('click', () => {
-    if (confirm(`'${marker.name}' 마커를 삭제할까요?`)) {
-      markers = markers.filter(m => m !== marker);
-      localStorage.setItem('markers', JSON.stringify(markers));
-      renderAll();
+      // 목록 추가
+      const entry = document.createElement('div');
+      entry.innerText = `${name} (${x}, ${y})`;
+      document.getElementById(category).appendChild(entry);
     }
-  });
-
-  map.appendChild(el);
-
-  const li = document.createElement('li');
-  li.textContent = `${marker.name} (${marker.x}, ${marker.y})`;
-  categoryLists[marker.category].appendChild(li);
-}
-
-function renderAll() {
-  map.querySelectorAll('.marker').forEach(el => el.remove());
-  Object.values(categoryLists).forEach(ul => ul.innerHTML = '');
-  markers.forEach(drawMarker);
-}
-
-form.addEventListener('submit', e => {
-  e.preventDefault();
-  const marker = {
-    name: form.name.value.trim(),
-    x: parseInt(form.x.value),
-    y: parseInt(form.y.value),
-    color: form.color.value,
-    category: form.category.value
-  };
-  if (marker.x < 0 || marker.x > 600 || marker.y < 0 || marker.y > 600) {
-    alert("좌표는 0~600 사이여야 합니다.");
-    return;
-  }
-  markers.push(marker);
-  localStorage.setItem('markers', JSON.stringify(markers));
-  renderAll();
-  form.reset();
-});
-
-map.addEventListener('click', e => {
-  const { x, y } = screenToCoord(e.clientX, e.clientY);
-  form.x.value = x;
-  form.y.value = y;
-});
-
-renderAll();
-</script>
-
+  </script>
 </body>
 </html>
