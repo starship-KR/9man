@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>90K MAP</title>
+  <title>StarShip MAP</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -71,10 +71,6 @@
       white-space: normal;
     }
 
-    h1 {
-      margin-top: 0;
-    }
-
     form label {
       display: block;
       margin: 8px 0 4px;
@@ -103,11 +99,6 @@
       font-weight: 700;
       font-size: 15px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #2980b9;
     }
 
     .marker {
@@ -116,14 +107,12 @@
       align-items: center;
       transform: translate(-50%, -100%);
       cursor: pointer;
-      white-space: nowrap;
     }
 
     .marker-dot {
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      flex-shrink: 0;
       margin-right: 6px;
       box-shadow: 0 0 4px rgba(0,0,0,0.5);
     }
@@ -140,32 +129,17 @@
   <div id="map-container"></div>
 
   <div class="info-grid">
-    <div class="category">
-      <h3>지원조</h3>
-      <ul id="list-support" class="marker-list"></ul>
-    </div>
-    <div class="category">
-      <h3>1조</h3>
-      <ul id="list-team1" class="marker-list"></ul>
-    </div>
-    <div class="category">
-      <h3>2조</h3>
-      <ul id="list-team2" class="marker-list"></ul>
-    </div>
-    <div class="category">
-      <h3>3조</h3>
-      <ul id="list-team3" class="marker-list"></ul>
-    </div>
-    <div class="category">
-      <h3>적맹주</h3>
-      <ul id="list-enemy" class="marker-list"></ul>
-    </div>
+    <div class="category"><h3>지원조</h3><ul id="list-support" class="marker-list"></ul></div>
+    <div class="category"><h3>1조</h3><ul id="list-team1" class="marker-list"></ul></div>
+    <div class="category"><h3>2조</h3><ul id="list-team2" class="marker-list"></ul></div>
+    <div class="category"><h3>3조</h3><ul id="list-team3" class="marker-list"></ul></div>
+    <div class="category"><h3>적맹주</h3><ul id="list-enemy" class="marker-list"></ul></div>
 
     <div id="form-container">
       <h1>StarShip</h1>
       <form id="marker-form">
         <label for="name">이름</label>
-        <input type="text" id="name" required placeholder="이름 입력" />
+        <input type="text" id="name" required />
 
         <label for="x">X 좌표 (0 ~ 600)</label>
         <input type="number" id="x" min="0" max="600" required />
@@ -176,13 +150,8 @@
         <label for="color">색상</label>
         <select id="color" required>
           <option value="#e74c3c">빨강</option>
-          <option value="#e67e22">주황</option>
-          <option value="#f1c40f">노랑</option>
-          <option value="#2ecc71">초록</option>
-          <option value="#1abc9c">청록</option>
           <option value="#3498db">파랑</option>
-          <option value="#9b59b6">보라</option>
-          <option value="#7f8c8d">회색</option>
+          <option value="#2ecc71">초록</option>
         </select>
 
         <label for="category">카테고리</label>
@@ -200,10 +169,13 @@
   </div>
 
   <script>
-    const form = document.getElementById('marker-form');
     const map = document.getElementById('map-container');
+    const form = document.getElementById('marker-form');
+    const gridSize = 600;
+    const imageSize = 1024;
+    const padding = (imageSize - gridSize) / 2;
 
-    let savedMarkers = JSON.parse(localStorage.getItem('markers') || '[]');
+    let markers = JSON.parse(localStorage.getItem('markers') || '[]');
 
     const categoryLists = {
       '지원조': document.getElementById('list-support'),
@@ -213,11 +185,30 @@
       '적맹주': document.getElementById('list-enemy'),
     };
 
+    function screenToGrid(x, y) {
+      const rect = map.getBoundingClientRect();
+      const relX = (x / rect.width) * imageSize;
+      const relY = (y / rect.height) * imageSize;
+
+      const gx = Math.round(((relX - padding) / gridSize) * 600);
+      const gy = Math.round(600 - ((relY - padding) / gridSize) * 600);
+
+      return { x: Math.max(0, Math.min(600, gx)), y: Math.max(0, Math.min(600, gy)) };
+    }
+
+    function gridToScreen(x, y) {
+      const rect = map.getBoundingClientRect();
+      const px = ((padding + (x / 600) * gridSize) / imageSize) * rect.width;
+      const py = ((padding + ((600 - y) / 600) * gridSize) / imageSize) * rect.height;
+      return { x: px, y: py };
+    }
+
     function drawMarker({ name, x, y, color, category }) {
+      const pos = gridToScreen(x, y);
       const marker = document.createElement('div');
       marker.className = 'marker';
-      marker.style.left = x + 'px';
-      marker.style.top = (600 - y) + 'px'; // Y 좌표 반전
+      marker.style.left = pos.x + 'px';
+      marker.style.top = pos.y + 'px';
 
       const dot = document.createElement('div');
       dot.className = 'marker-dot';
@@ -229,7 +220,6 @@
 
       marker.appendChild(dot);
       marker.appendChild(label);
-
       marker.title = `'${name}' 마커 삭제하려면 클릭하세요`;
       marker.addEventListener('click', () => {
         if(confirm(`'${name}' 마커를 삭제할까요?`)) {
@@ -240,7 +230,7 @@
 
       map.appendChild(marker);
 
-      if(categoryLists[category]) {
+      if (categoryLists[category]) {
         const li = document.createElement('li');
         li.textContent = `${name} (${x}, ${y})`;
         categoryLists[category].appendChild(li);
@@ -248,49 +238,34 @@
     }
 
     function saveMarker(marker) {
-      savedMarkers.push(marker);
-      localStorage.setItem('markers', JSON.stringify(savedMarkers));
+      markers.push(marker);
+      localStorage.setItem('markers', JSON.stringify(markers));
     }
 
     function deleteMarker(name, x, y, category) {
-      savedMarkers = savedMarkers.filter(m =>
-        !(m.name === name && m.x === x && m.y === y && m.category === category)
-      );
-      localStorage.setItem('markers', JSON.stringify(savedMarkers));
-
-      if(categoryLists[category]) {
-        const lis = categoryLists[category].querySelectorAll('li');
-        lis.forEach(li => {
-          if(li.textContent.startsWith(name + ' ')) {
-            li.remove();
-          }
-        });
-      }
+      markers = markers.filter(m => !(m.name === name && m.x === x && m.y === y && m.category === category));
+      localStorage.setItem('markers', JSON.stringify(markers));
+      loadMarkers();
     }
 
     function loadMarkers() {
-      for(let cat in categoryLists) {
+      for (let cat in categoryLists) {
         categoryLists[cat].innerHTML = '';
       }
-      while(map.firstChild) {
-        map.removeChild(map.firstChild);
-      }
-      savedMarkers.forEach(drawMarker);
+      map.querySelectorAll('.marker').forEach(el => el.remove());
+      markers.forEach(drawMarker);
     }
-
-    loadMarkers();
 
     form.addEventListener('submit', e => {
       e.preventDefault();
-
       const name = document.getElementById('name').value.trim();
       const x = parseInt(document.getElementById('x').value);
       const y = parseInt(document.getElementById('y').value);
       const color = document.getElementById('color').value;
       const category = document.getElementById('category').value;
 
-      if(x < 0 || x > 600 || y < 0 || y > 600) {
-        alert('좌표는 0에서 600 사이여야 합니다.');
+      if (x < 0 || x > 600 || y < 0 || y > 600) {
+        alert('좌표는 0~600 사이여야 합니다.');
         return;
       }
 
@@ -302,11 +277,14 @@
 
     map.addEventListener('click', e => {
       const rect = map.getBoundingClientRect();
-      const x = Math.floor(e.clientX - rect.left);
-      const y = 600 - Math.floor(e.clientY - rect.top); // 클릭 시 Y 반전
-      document.getElementById('x').value = x;
-      document.getElementById('y').value = y;
+      const relX = e.clientX - rect.left;
+      const relY = e.clientY - rect.top;
+      const g = screenToGrid(relX, relY);
+      document.getElementById('x').value = g.x;
+      document.getElementById('y').value = g.y;
     });
+
+    loadMarkers();
   </script>
 </body>
 </html>
