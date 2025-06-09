@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -21,7 +20,7 @@
       position: relative;
       width: 600px;
       height: 600px;
-      background-image: url('background.png'); /* ½ÇÁ¦ ÀÌ¹ÌÁö °æ·Î·Î ¹Ù²Ù¼¼¿ä */
+      background-image: url('background.png'); /* ë°°ê²½ ì´ë¯¸ì§€ ì£¼ì†Œ */
       background-size: cover;
       margin-right: 30px;
     }
@@ -148,59 +147,59 @@
     <div id="form-container">
       <h1>90K MAP</h1>
       <form id="marker-form">
-        <label for="name">ÀÌ¸§</label>
-        <input type="text" id="name" required placeholder="ÀÌ¸§ ÀÔ·Â" />
+        <label for="name">ì´ë¦„</label>
+        <input type="text" id="name" required placeholder="ì´ë¦„ ì…ë ¥" />
 
-        <label for="x">X ÁÂÇ¥ (0 ~ 600)</label>
+        <label for="x">X ì¢Œí‘œ (0 ~ 600)</label>
         <input type="number" id="x" min="0" max="600" required />
 
-        <label for="y">Y ÁÂÇ¥ (0 ~ 600)</label>
+        <label for="y">Y ì¢Œí‘œ (0 ~ 600)</label>
         <input type="number" id="y" min="0" max="600" required />
 
-        <label for="color">»ö»ó</label>
+        <label for="color">ìƒ‰ìƒ</label>
         <select id="color" required>
-          <option value="#e74c3c" style="color:#e74c3c;">»¡°­</option>
-          <option value="#e67e22" style="color:#e67e22;">ÁÖÈ²</option>
-          <option value="#f1c40f" style="color:#f1c40f;">³ë¶û</option>
-          <option value="#2ecc71" style="color:#2ecc71;">ÃÊ·Ï</option>
-          <option value="#1abc9c" style="color:#1abc9c;">Ã»·Ï</option>
-          <option value="#3498db" style="color:#3498db;">ÆÄ¶û</option>
-          <option value="#9b59b6" style="color:#9b59b6;">º¸¶ó</option>
-          <option value="#7f8c8d" style="color:#7f8c8d;">È¸»ö</option>
+          <option value="#e74c3c" style="color:#e74c3c;">ë¹¨ê°•</option>
+          <option value="#e67e22" style="color:#e67e22;">ì£¼í™©</option>
+          <option value="#f1c40f" style="color:#f1c40f;">ë…¸ë‘</option>
+          <option value="#2ecc71" style="color:#2ecc71;">ì´ˆë¡</option>
+          <option value="#1abc9c" style="color:#1abc9c;">ì²­ë¡</option>
+          <option value="#3498db" style="color:#3498db;">íŒŒë‘</option>
+          <option value="#9b59b6" style="color:#9b59b6;">ë³´ë¼</option>
+          <option value="#7f8c8d" style="color:#7f8c8d;">íšŒìƒ‰</option>
         </select>
 
-        <label for="category">Ä«Å×°í¸®</label>
+        <label for="category">ì¹´í…Œê³ ë¦¬</label>
         <select id="category" required>
-          <option value="Áö¿øÁ¶">Áö¿øÁ¶</option>
-          <option value="1Á¶">1Á¶</option>
-          <option value="2Á¶">2Á¶</option>
-          <option value="3Á¶">3Á¶</option>
-          <option value="Àû¸ÍÁÖ">Àû¸ÍÁÖ</option>
+          <option value="ì§€ì›íŒ€">ì§€ì›íŒ€</option>
+          <option value="1íŒ€">1íŒ€</option>
+          <option value="2íŒ€">2íŒ€</option>
+          <option value="3íŒ€">3íŒ€</option>
+          <option value="ì êµ°">ì êµ°</option>
         </select>
 
-        <button type="submit">Ãß°¡</button>
+        <button type="submit">ì¶”ê°€</button>
       </form>
     </div>
 
     <div class="categories">
       <div class="category">
-        <h3>Áö¿øÁ¶</h3>
+        <h3>ì§€ì›íŒ€</h3>
         <ul id="list-support" class="marker-list"></ul>
       </div>
       <div class="category">
-        <h3>1Á¶</h3>
+        <h3>1íŒ€</h3>
         <ul id="list-team1" class="marker-list"></ul>
       </div>
       <div class="category">
-        <h3>2Á¶</h3>
+        <h3>2íŒ€</h3>
         <ul id="list-team2" class="marker-list"></ul>
       </div>
       <div class="category">
-        <h3>3Á¶</h3>
+        <h3>3íŒ€</h3>
         <ul id="list-team3" class="marker-list"></ul>
       </div>
       <div class="category">
-        <h3>Àû¸ÍÁÖ</h3>
+        <h3>ì êµ°</h3>
         <ul id="list-enemy" class="marker-list"></ul>
       </div>
     </div>
@@ -213,11 +212,11 @@
     let savedMarkers = JSON.parse(localStorage.getItem('markers') || '[]');
 
     const categoryLists = {
-      'Áö¿øÁ¶': document.getElementById('list-support'),
-      '1Á¶': document.getElementById('list-team1'),
-      '2Á¶': document.getElementById('list-team2'),
-      '3Á¶': document.getElementById('list-team3'),
-      'Àû¸ÍÁÖ': document.getElementById('list-enemy'),
+      'ì§€ì›íŒ€': document.getElementById('list-support'),
+      '1íŒ€': document.getElementById('list-team1'),
+      '2íŒ€': document.getElementById('list-team2'),
+      '3íŒ€': document.getElementById('list-team3'),
+      'ì êµ°': document.getElementById('list-enemy'),
     };
 
     function drawMarker({ name, x, y, color, category }) {
@@ -237,9 +236,9 @@
       marker.appendChild(dot);
       marker.appendChild(label);
 
-      marker.title = `'${name}' ¸¶Ä¿ »èÁ¦ÇÏ·Á¸é Å¬¸¯ÇÏ¼¼¿ä`;
+      marker.title = `'${name}' ë§ˆì»¤ë¥¼ ì‚­ì œí•˜ë ¤ë©´ í´ë¦­í•˜ì„¸ìš”.`;
       marker.addEventListener('click', () => {
-        if(confirm(`'${name}' ¸¶Ä¿¸¦ »èÁ¦ÇÒ±î¿ä?`)) {
+        if(confirm(`'${name}' ë§ˆì»¤ë¥¼ ì‚­ì œí• ê¹Œìš”?`)) {
           marker.remove();
           deleteMarker(name, x, y, category);
         }
@@ -297,7 +296,7 @@
       const category = document.getElementById('category').value;
 
       if(x < 0 || x > 600 || y < 0 || y > 600) {
-        alert('ÁÂÇ¥´Â 0¿¡¼­ 600 »çÀÌ¿©¾ß ÇÕ´Ï´Ù.');
+        alert('ì¢Œí‘œëŠ” 0ë¶€í„° 600 ì‚¬ì´ì—¬ì•¼ í•©ë‹ˆë‹¤.');
         return;
       }
 
