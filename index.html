@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StarShip</title>
+  <title>90K MAP</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -217,7 +217,7 @@
       const marker = document.createElement('div');
       marker.className = 'marker';
       marker.style.left = x + 'px';
-      marker.style.top = y + 'px';
+      marker.style.top = (600 - y) + 'px'; // Y 좌표 반전
 
       const dot = document.createElement('div');
       dot.className = 'marker-dot';
@@ -303,7 +303,7 @@
     map.addEventListener('click', e => {
       const rect = map.getBoundingClientRect();
       const x = Math.floor(e.clientX - rect.left);
-      const y = Math.floor(e.clientY - rect.top);
+      const y = 600 - Math.floor(e.clientY - rect.top); // 클릭 시 Y 반전
       document.getElementById('x').value = x;
       document.getElementById('y').value = y;
     });
