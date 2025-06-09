@@ -8,16 +8,20 @@
     * {
       box-sizing: border-box;
     }
+
     body {
       font-family: sans-serif;
       margin: 0;
       padding: 20px;
       background: #edf2f7;
     }
+
     .container {
       display: flex;
       gap: 20px;
+      flex-wrap: wrap;
     }
+
     .left-panel {
       position: relative;
       width: 600px;
@@ -25,7 +29,9 @@
       background: url('grid.png') no-repeat center center;
       background-size: 600px 600px;
       border: 2px solid black;
+      flex-shrink: 0;
     }
+
     .point {
       position: absolute;
       width: 8px;
@@ -33,10 +39,11 @@
       background: red;
       border-radius: 50%;
     }
+
     .label {
       position: absolute;
       left: 10px;
-      top: -2px;
+      top: -8px;
       white-space: nowrap;
       font-size: 12px;
       background: white;
@@ -44,26 +51,27 @@
       border-radius: 4px;
       border: 1px solid #ccc;
     }
-    .right-section {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
+
     .form-panel {
       background: white;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       width: 300px;
+      flex-shrink: 0;
     }
+
     .form-panel h2 {
       margin-top: 0;
     }
-    .form-panel input, .form-panel select {
+
+    .form-panel input,
+    .form-panel select {
       width: 100%;
       margin-bottom: 10px;
       padding: 8px;
     }
+
     .form-panel button {
       width: 100%;
       padding: 10px;
@@ -73,57 +81,82 @@
       border-radius: 4px;
       cursor: pointer;
     }
+
     .category-boxes {
       display: flex;
-      flex-direction: row;
-      gap: 10px;
       flex-wrap: wrap;
+      margin-top: 20px;
+      gap: 10px;
     }
+
     .box {
       background: white;
       padding: 10px;
       border-radius: 8px;
-      min-width: 100px;
+      min-height: 80px;
+      flex: 1;
     }
+
     .box h3 {
       margin: 0 0 8px 0;
       font-size: 16px;
       border-bottom: 2px solid #3182ce;
       display: inline-block;
     }
+
+    /* 📱 모바일 최적화 */
+    @media (max-width: 768px) {
+      .left-panel {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1 / 1;
+        background-size: 100% 100%;
+      }
+
+      .point {
+        transform: translate(-50%, 50%);
+      }
+
+      .form-panel {
+        width: 100%;
+      }
+
+      .category-boxes {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="left-panel" id="map"></div>
-    <div class="right-section">
-      <div class="form-panel">
-        <h2>StarShip</h2>
-        <input type="text" id="name" placeholder="이름" />
-        <input type="number" id="x" placeholder="X 좌표 (0~600)" />
-        <input type="number" id="y" placeholder="Y 좌표 (0~600)" />
-        <select id="color">
-          <option value="red">빨강</option>
-          <option value="blue">파랑</option>
-          <option value="green">초록</option>
-        </select>
-        <select id="category">
-          <option value="지원조">지원조</option>
-          <option value="1조">1조</option>
-          <option value="2조">2조</option>
-          <option value="3조">3조</option>
-          <option value="적맹주">적맹주</option>
-        </select>
-        <button onclick="addPoint()">추가</button>
-      </div>
-      <div class="category-boxes">
-        <div class="box" id="지원조"><h3>지원조</h3></div>
-        <div class="box" id="1조"><h3>1조</h3></div>
-        <div class="box" id="2조"><h3>2조</h3></div>
-        <div class="box" id="3조"><h3>3조</h3></div>
-        <div class="box" id="적맹주"><h3>적맹주</h3></div>
-      </div>
+    <div class="form-panel">
+      <h2>StarShip</h2>
+      <input type="text" id="name" placeholder="이름" />
+      <input type="number" id="x" placeholder="X 좌표 (0~600)" />
+      <input type="number" id="y" placeholder="Y 좌표 (0~600)" />
+      <select id="color">
+        <option value="red">빨강</option>
+        <option value="blue">파랑</option>
+        <option value="green">초록</option>
+      </select>
+      <select id="category">
+        <option value="지원조">지원조</option>
+        <option value="1조">1조</option>
+        <option value="2조">2조</option>
+        <option value="3조">3조</option>
+        <option value="적맹주">적맹주</option>
+      </select>
+      <button onclick="addPoint()">추가</button>
     </div>
+  </div>
+
+  <div class="category-boxes">
+    <div class="box" id="지원조"><h3>지원조</h3></div>
+    <div class="box" id="1조"><h3>1조</h3></div>
+    <div class="box" id="2조"><h3>2조</h3></div>
+    <div class="box" id="3조"><h3>3조</h3></div>
+    <div class="box" id="적맹주"><h3>적맹주</h3></div>
   </div>
 
   <script>
@@ -138,10 +171,16 @@
 
       if (x < 0 || x > 600 || y < 0 || y > 600) return alert("좌표는 0~600 범위입니다");
 
+      const panelWidth = map.clientWidth;
+      const panelHeight = map.clientHeight;
+
+      const scaledX = (x / 600) * panelWidth;
+      const scaledY = (y / 600) * panelHeight;
+
       const point = document.createElement("div");
       point.className = "point";
-      point.style.left = `${x - 4}px`;
-      point.style.bottom = `${y - 4}px`;
+      point.style.left = `${scaledX}px`;
+      point.style.bottom = `${scaledY}px`;
       point.style.background = color;
 
       const label = document.createElement("div");
