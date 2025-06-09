@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StarShip</title>
+  <title>90K MAP</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -20,7 +20,7 @@
       position: relative;
       width: 600px;
       height: 600px;
-      background-image: url('background.png'); /* 배경 이미지 주소 */
+      background-image: url('grid.png'); /* 이미지 파일명 수정됨 */
       background-size: cover;
       margin-right: 30px;
     }
@@ -145,7 +145,7 @@
 
   <div id="sidebar">
     <div id="form-container">
-      <h1>StarShip Map</h1>
+      <h1>90K MAP</h1>
       <form id="marker-form">
         <label for="name">이름</label>
         <input type="text" id="name" required placeholder="이름 입력" />
@@ -170,11 +170,11 @@
 
         <label for="category">카테고리</label>
         <select id="category" required>
-          <option value="지원팀">지원팀</option>
-          <option value="1팀">1팀</option>
-          <option value="2팀">2팀</option>
-          <option value="3팀">3팀</option>
-          <option value="적군">적군</option>
+          <option value="지원조">지원조</option>
+          <option value="1조">1조</option>
+          <option value="2조">2조</option>
+          <option value="3조">3조</option>
+          <option value="적맹주">적맹주</option>
         </select>
 
         <button type="submit">추가</button>
@@ -183,23 +183,23 @@
 
     <div class="categories">
       <div class="category">
-        <h3>지원팀</h3>
+        <h3>지원조</h3>
         <ul id="list-support" class="marker-list"></ul>
       </div>
       <div class="category">
-        <h3>1팀</h3>
+        <h3>1조</h3>
         <ul id="list-team1" class="marker-list"></ul>
       </div>
       <div class="category">
-        <h3>2팀</h3>
+        <h3>2조</h3>
         <ul id="list-team2" class="marker-list"></ul>
       </div>
       <div class="category">
-        <h3>3팀</h3>
+        <h3>3조</h3>
         <ul id="list-team3" class="marker-list"></ul>
       </div>
       <div class="category">
-        <h3>적군</h3>
+        <h3>적맹주</h3>
         <ul id="list-enemy" class="marker-list"></ul>
       </div>
     </div>
@@ -212,11 +212,11 @@
     let savedMarkers = JSON.parse(localStorage.getItem('markers') || '[]');
 
     const categoryLists = {
-      '지원팀': document.getElementById('list-support'),
-      '1팀': document.getElementById('list-team1'),
-      '2팀': document.getElementById('list-team2'),
-      '3팀': document.getElementById('list-team3'),
-      '적군': document.getElementById('list-enemy'),
+      '지원조': document.getElementById('list-support'),
+      '1조': document.getElementById('list-team1'),
+      '2조': document.getElementById('list-team2'),
+      '3조': document.getElementById('list-team3'),
+      '적맹주': document.getElementById('list-enemy'),
     };
 
     function drawMarker({ name, x, y, color, category }) {
@@ -236,7 +236,7 @@
       marker.appendChild(dot);
       marker.appendChild(label);
 
-      marker.title = `'${name}' 마커를 삭제하려면 클릭하세요.`;
+      marker.title = `'${name}' 마커 삭제하려면 클릭하세요`;
       marker.addEventListener('click', () => {
         if(confirm(`'${name}' 마커를 삭제할까요?`)) {
           marker.remove();
@@ -296,7 +296,7 @@
       const category = document.getElementById('category').value;
 
       if(x < 0 || x > 600 || y < 0 || y > 600) {
-        alert('좌표는 0부터 600 사이여야 합니다.');
+        alert('좌표는 0에서 600 사이여야 합니다.');
         return;
       }
 
