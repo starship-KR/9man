@@ -3,79 +3,85 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StarShip MAP</title>
+  <title>90K MAP</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
       margin: 20px;
       background: #f0f3f5;
       color: #333;
       user-select: none;
-      flex-wrap: wrap;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     #map-container {
       position: relative;
-      width: 600px;
-      height: 600px;
+      width: 100%;
+      max-width: 600px;
+      aspect-ratio: 1 / 1;
       background-image: url('grid.png');
-      background-size: cover;
-      margin-right: 30px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      margin-bottom: 30px;
     }
 
-    .marker {
-      position: absolute;
-      display: flex;
-      align-items: center;
-      transform: translate(-50%, -100%);
-      cursor: pointer;
-      white-space: nowrap;
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      width: 100%;
+      max-width: 1000px;
+      padding: 10px;
     }
 
-    .marker-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      margin-right: 6px;
-      box-shadow: 0 0 4px rgba(0,0,0,0.5);
-    }
-
-    .marker-label {
-      font-size: 13px;
-      font-weight: 600;
-      color: #222;
-      text-shadow: 0 0 2px white;
-    }
-
-    #sidebar {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-    }
-
-    #form-container {
-      width: 320px;
-      margin-right: 20px;
-    }
-
-    form {
+    .category, #form-container {
       background: white;
-      padding: 15px;
       border-radius: 8px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.05);
+      box-shadow: 0 0 6px rgba(0,0,0,0.05);
+      padding: 15px;
+      box-sizing: border-box;
     }
 
-    label {
+    .category h3 {
+      margin-top: 0;
+      font-weight: 700;
+      color: #555;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 4px;
+    }
+
+    .marker-list {
+      list-style: none;
+      padding-left: 10px;
+      margin: 0;
+      max-height: 130px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+
+    .marker-list li {
+      margin-bottom: 6px;
+      cursor: default;
+      color: #333;
+      user-select: text;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    form label {
       display: block;
       margin: 8px 0 4px;
       font-weight: 600;
     }
 
-    input[type="text"], input[type="number"], select {
+    input[type="text"],
+    input[type="number"],
+    select {
       width: 100%;
       padding: 6px 8px;
       border: 1.5px solid #ccc;
@@ -102,91 +108,59 @@
       background-color: #2980b9;
     }
 
-    .categories {
+    .marker {
+      position: absolute;
       display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      gap: 12px;
+      align-items: center;
+      transform: translate(-50%, -100%);
+      cursor: pointer;
+      white-space: nowrap;
     }
 
-    .category {
-      background: white;
-      border-radius: 8px;
-      padding: 10px 12px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.05);
-      width: 160px;
+    .marker-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-right: 6px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.5);
     }
 
-    .category h3 {
-      margin: 0 0 10px 0;
-      font-weight: 700;
-      color: #555;
-      border-bottom: 2px solid #3498db;
-      padding-bottom: 4px;
-    }
-
-    .marker-list {
-      list-style: none;
-      padding-left: 10px;
-      margin: 0;
-      max-height: 130px;
-      overflow-y: auto;
-      font-size: 14px;
-    }
-
-    .marker-list li {
-      margin-bottom: 6px;
-      cursor: default;
-      color: #333;
-      user-select: text;
-    }
-
-    /* ✅ 반응형 스타일 추가 */
-    @media (max-width: 768px) {
-      body {
-        flex-direction: column;
-        align-items: center;
-        margin: 10px;
-      }
-
-      #map-container {
-        margin-right: 0;
-        margin-bottom: 20px;
-        width: 100%;
-        max-width: 90vw;
-        aspect-ratio: 1 / 1;
-        background-size: contain;
-        background-repeat: no-repeat;
-      }
-
-      #sidebar {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      #form-container {
-        width: 90%;
-        margin-right: 0;
-        margin-bottom: 20px;
-      }
-
-      .categories {
-        flex-direction: column;
-        align-items: center;
-        gap: 16px;
-      }
-
-      .category {
-        width: 90%;
-        max-width: 300px;
-      }
+    .marker-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #222;
+      text-shadow: 0 0 2px white;
     }
   </style>
 </head>
 <body>
   <div id="map-container"></div>
 
-  <div id="sidebar">
+  <div class="info-grid">
+    <!-- 카테고리 5개 -->
+    <div class="category">
+      <h3>지원조</h3>
+      <ul id="list-support" class="marker-list"></ul>
+    </div>
+    <div class="category">
+      <h3>1조</h3>
+      <ul id="list-team1" class="marker-list"></ul>
+    </div>
+    <div class="category">
+      <h3>2조</h3>
+      <ul id="list-team2" class="marker-list"></ul>
+    </div>
+    <div class="category">
+      <h3>3조</h3>
+      <ul id="list-team3" class="marker-list"></ul>
+    </div>
+    <div class="category">
+      <h3>적맹주</h3>
+      <ul id="list-enemy" class="marker-list"></ul>
+    </div>
+
+    <!-- 입력 폼 -->
     <div id="form-container">
       <h1>StarShip</h1>
       <form id="marker-form">
@@ -222,29 +196,6 @@
 
         <button type="submit">추가</button>
       </form>
-    </div>
-
-    <div class="categories">
-      <div class="category">
-        <h3>지원조</h3>
-        <ul id="list-support" class="marker-list"></ul>
-      </div>
-      <div class="category">
-        <h3>1조</h3>
-        <ul id="list-team1" class="marker-list"></ul>
-      </div>
-      <div class="category">
-        <h3>2조</h3>
-        <ul id="list-team2" class="marker-list"></ul>
-      </div>
-      <div class="category">
-        <h3>3조</h3>
-        <ul id="list-team3" class="marker-list"></ul>
-      </div>
-      <div class="category">
-        <h3>적맹주</h3>
-        <ul id="list-enemy" class="marker-list"></ul>
-      </div>
     </div>
   </div>
 
