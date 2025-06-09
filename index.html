@@ -25,7 +25,8 @@
       position: relative;
       width: 600px;
       height: 600px;
-      background: url('grid.png') no-repeat center/contain;
+      background: url('grid.png') left bottom no-repeat;
+      background-size: contain;
       border-radius: 10px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
@@ -182,13 +183,13 @@ function screenToCoord(clientX, clientY) {
   const rect = map.getBoundingClientRect();
   const x = Math.round((clientX - rect.left) / rect.width * maxCoord);
   const y = Math.round((clientY - rect.top) / rect.height * maxCoord);
-  return { x, y };
+  return { x, y: maxCoord - y };
 }
 
 function coordToScreen(x, y) {
   const rect = map.getBoundingClientRect();
   const px = x / maxCoord * rect.width;
-  const py = y / maxCoord * rect.height;
+  const py = (1 - y / maxCoord) * rect.height;
   return { x: px, y: py };
 }
 
@@ -197,7 +198,7 @@ function drawMarker(marker) {
   const el = document.createElement('div');
   el.className = 'marker';
   el.style.left = `${pos.x}px`;
-  el.style.top = `${map.clientHeight - pos.y}px`;
+  el.style.top = `${pos.y}px`;
 
   const dot = document.createElement('div');
   dot.className = 'marker-dot';
