@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StarShip MAP</title>
+  <title>90K MAP</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -45,14 +45,6 @@
       box-sizing: border-box;
     }
 
-    .category h3 {
-      margin-top: 0;
-      font-weight: 700;
-      color: #555;
-      border-bottom: 2px solid #3498db;
-      padding-bottom: 4px;
-    }
-
     .marker-list {
       list-style: none;
       padding-left: 10px;
@@ -64,9 +56,6 @@
 
     .marker-list li {
       margin-bottom: 6px;
-      cursor: default;
-      color: #333;
-      user-select: text;
       word-break: break-word;
       white-space: normal;
     }
@@ -140,20 +129,16 @@
       <form id="marker-form">
         <label for="name">이름</label>
         <input type="text" id="name" required />
-
         <label for="x">X 좌표 (0 ~ 600)</label>
         <input type="number" id="x" min="0" max="600" required />
-
         <label for="y">Y 좌표 (0 ~ 600)</label>
         <input type="number" id="y" min="0" max="600" required />
-
         <label for="color">색상</label>
         <select id="color" required>
           <option value="#e74c3c">빨강</option>
           <option value="#3498db">파랑</option>
           <option value="#2ecc71">초록</option>
         </select>
-
         <label for="category">카테고리</label>
         <select id="category" required>
           <option value="지원조">지원조</option>
@@ -162,18 +147,20 @@
           <option value="3조">3조</option>
           <option value="적맹주">적맹주</option>
         </select>
-
         <button type="submit">추가</button>
       </form>
     </div>
   </div>
 
   <script>
+    const gridWidth = 600;
+    const imageWidth = 901;
+    const imageHeight = 902;
+    const offsetX = (imageWidth - gridWidth) / 2;  // 150.5
+    const offsetY = (imageHeight - gridWidth) / 2; // 151
+
     const map = document.getElementById('map-container');
     const form = document.getElementById('marker-form');
-    const gridSize = 600;
-    const imageSize = 1024;
-    const padding = (imageSize - gridSize) / 2;
 
     let markers = JSON.parse(localStorage.getItem('markers') || '[]');
 
@@ -185,21 +172,20 @@
       '적맹주': document.getElementById('list-enemy'),
     };
 
-    function screenToGrid(x, y) {
+    function screenToGrid(clientX, clientY) {
       const rect = map.getBoundingClientRect();
-      const relX = (x / rect.width) * imageSize;
-      const relY = (y / rect.height) * imageSize;
+      const relX = (clientX - rect.left) / rect.width * imageWidth;
+      const relY = (clientY - rect.top) / rect.height * imageHeight;
 
-      const gx = Math.round(((relX - padding) / gridSize) * 600);
-      const gy = Math.round(600 - ((relY - padding) / gridSize) * 600);
-
-      return { x: Math.max(0, Math.min(600, gx)), y: Math.max(0, Math.min(600, gy)) };
+      const x = Math.round(((relX - offsetX) / gridWidth) * 600);
+      const y = Math.round(600 - ((relY - offsetY) / gridWidth) * 600);
+      return { x: Math.max(0, Math.min(600, x)), y: Math.max(0, Math.min(600, y)) };
     }
 
     function gridToScreen(x, y) {
       const rect = map.getBoundingClientRect();
-      const px = ((padding + (x / 600) * gridSize) / imageSize) * rect.width;
-      const py = ((padding + ((600 - y) / 600) * gridSize) / imageSize) * rect.height;
+      const px = ((offsetX + (x / 600) * gridWidth) / imageWidth) * rect.width;
+      const py = ((offsetY + ((600 - y) / 600) * gridWidth) / imageHeight) * rect.height;
       return { x: px, y: py };
     }
 
@@ -222,24 +208,16 @@
       marker.appendChild(label);
       marker.title = `'${name}' 마커 삭제하려면 클릭하세요`;
       marker.addEventListener('click', () => {
-        if(confirm(`'${name}' 마커를 삭제할까요?`)) {
+        if (confirm(`'${name}' 마커를 삭제할까요?`)) {
           marker.remove();
           deleteMarker(name, x, y, category);
         }
       });
 
       map.appendChild(marker);
-
-      if (categoryLists[category]) {
-        const li = document.createElement('li');
-        li.textContent = `${name} (${x}, ${y})`;
-        categoryLists[category].appendChild(li);
-      }
-    }
-
-    function saveMarker(marker) {
-      markers.push(marker);
-      localStorage.setItem('markers', JSON.stringify(markers));
+      const li = document.createElement('li');
+      li.textContent = `${name} (${x}, ${y})`;
+      categoryLists[category].appendChild(li);
     }
 
     function deleteMarker(name, x, y, category) {
@@ -249,39 +227,35 @@
     }
 
     function loadMarkers() {
-      for (let cat in categoryLists) {
-        categoryLists[cat].innerHTML = '';
-      }
+      Object.values(categoryLists).forEach(list => list.innerHTML = '');
       map.querySelectorAll('.marker').forEach(el => el.remove());
       markers.forEach(drawMarker);
     }
 
     form.addEventListener('submit', e => {
       e.preventDefault();
-      const name = document.getElementById('name').value.trim();
-      const x = parseInt(document.getElementById('x').value);
-      const y = parseInt(document.getElementById('y').value);
-      const color = document.getElementById('color').value;
-      const category = document.getElementById('category').value;
+      const name = form.name.value.trim();
+      const x = parseInt(form.x.value);
+      const y = parseInt(form.y.value);
+      const color = form.color.value;
+      const category = form.category.value;
 
       if (x < 0 || x > 600 || y < 0 || y > 600) {
         alert('좌표는 0~600 사이여야 합니다.');
         return;
       }
 
-      const newMarker = { name, x, y, color, category };
-      drawMarker(newMarker);
-      saveMarker(newMarker);
+      const marker = { name, x, y, color, category };
+      markers.push(marker);
+      localStorage.setItem('markers', JSON.stringify(markers));
+      drawMarker(marker);
       form.reset();
     });
 
     map.addEventListener('click', e => {
-      const rect = map.getBoundingClientRect();
-      const relX = e.clientX - rect.left;
-      const relY = e.clientY - rect.top;
-      const g = screenToGrid(relX, relY);
-      document.getElementById('x').value = g.x;
-      document.getElementById('y').value = g.y;
+      const { x, y } = screenToGrid(e.clientX, e.clientY);
+      document.getElementById('x').value = x;
+      document.getElementById('y').value = y;
     });
 
     loadMarkers();
