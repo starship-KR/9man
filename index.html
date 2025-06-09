@@ -5,16 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>90K MAP</title>
   <style>
-    * { box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', sans-serif;
+      margin: 20px;
       background: #f0f3f5;
-      margin: 0;
-      padding: 20px;
+      color: #333;
       display: flex;
       flex-direction: column;
       align-items: center;
-      color: #333;
     }
     .main {
       display: flex;
@@ -27,44 +25,40 @@
       flex: 1 1 600px;
       position: relative;
       aspect-ratio: 1 / 1;
-      background: url('grid.png') center/contain no-repeat;
+      background-image: url('grid.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
       border-radius: 10px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     #form-container {
       flex: 1 1 300px;
-      background: #fff;
+      background: white;
       border-radius: 10px;
       padding: 20px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-    #form-container h2 {
-      margin-top: 0;
-      color: #3498db;
-    }
     form label {
-      font-weight: 600;
-      margin-top: 12px;
       display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
     }
-    form input, form select {
+    input, select {
       width: 100%;
       padding: 8px;
-      margin-top: 4px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
       font-size: 14px;
+      margin-bottom: 10px;
     }
-    form button {
-      margin-top: 16px;
+    button {
       width: 100%;
       padding: 10px;
       background: #3498db;
-      color: white;
       border: none;
-      border-radius: 6px;
-      font-weight: bold;
+      color: white;
       font-size: 15px;
+      font-weight: bold;
+      border-radius: 6px;
       cursor: pointer;
     }
     .info-grid {
@@ -77,12 +71,12 @@
     }
     .category {
       background: white;
-      border-radius: 8px;
       padding: 15px;
+      border-radius: 8px;
       box-shadow: 0 0 6px rgba(0,0,0,0.05);
     }
     .category h3 {
-      margin-top: 0;
+      margin: 0 0 10px;
       border-bottom: 2px solid #3498db;
       padding-bottom: 4px;
     }
@@ -97,7 +91,6 @@
     .marker-list li {
       margin-bottom: 6px;
       word-break: break-word;
-      white-space: normal;
     }
     .marker {
       position: absolute;
@@ -131,15 +124,12 @@
     <form id="marker-form">
       <label for="name">이름</label>
       <input type="text" id="name" required />
-
-      <label for="x">X 좌표 (0 ~ 600)</label>
+      <label for="x">X 좌표 (0~600)</label>
       <input type="number" id="x" min="0" max="600" required />
-
-      <label for="y">Y 좌표 (0 ~ 600)</label>
+      <label for="y">Y 좌표 (0~600)</label>
       <input type="number" id="y" min="0" max="600" required />
-
       <label for="color">색상</label>
-      <select id="color" required>
+      <select id="color">
         <option value="#e74c3c">빨강</option>
         <option value="#e67e22">주황</option>
         <option value="#f1c40f">노랑</option>
@@ -149,16 +139,14 @@
         <option value="#9b59b6">보라</option>
         <option value="#7f8c8d">회색</option>
       </select>
-
       <label for="category">카테고리</label>
-      <select id="category" required>
+      <select id="category">
         <option value="지원조">지원조</option>
         <option value="1조">1조</option>
         <option value="2조">2조</option>
         <option value="3조">3조</option>
         <option value="적맹주">적맹주</option>
       </select>
-
       <button type="submit">추가</button>
     </form>
   </div>
@@ -175,7 +163,11 @@
 <script>
 const map = document.getElementById('map-container');
 const form = document.getElementById('marker-form');
-const gridWidth = 901, gridHeight = 902;
+
+const imgW = 900;  // width from 0 to 900
+const imgH = 899;  // height from 1 to 900
+const topOffset = 1;
+
 const maxCoord = 600;
 
 let markers = JSON.parse(localStorage.getItem('markers') || '[]');
@@ -190,24 +182,20 @@ const categoryLists = {
 
 function screenToCoord(clientX, clientY) {
   const rect = map.getBoundingClientRect();
-  const relX = (clientX - rect.left) / rect.width;
-  const relY = (clientY - rect.top) / rect.height;
+  const rawX = (clientX - rect.left) / rect.width * imgW;
+  const rawY = (clientY - rect.top) / rect.height * imgH + topOffset;
 
-  const x = Math.round(relX * maxCoord);
-  const y = Math.round((1 - relY) * maxCoord);
+  const x = Math.round((rawX / imgW) * maxCoord);
+  const y = Math.round(((900 - rawY) / imgH) * maxCoord);
 
-  return {
-    x: Math.max(0, Math.min(maxCoord, x)),
-    y: Math.max(0, Math.min(maxCoord, y))
-  };
+  return { x: Math.max(0, Math.min(maxCoord, x)), y: Math.max(0, Math.min(maxCoord, y)) };
 }
 
 function coordToScreen(x, y) {
   const rect = map.getBoundingClientRect();
-  return {
-    x: (x / maxCoord) * rect.width,
-    y: (1 - y / maxCoord) * rect.height
-  };
+  const px = (x / maxCoord) * rect.width;
+  const py = ((maxCoord - y) / maxCoord) * rect.height;
+  return { x: px, y: py };
 }
 
 function drawMarker(marker) {
