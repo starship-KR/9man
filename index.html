@@ -23,7 +23,8 @@
     #map-container {
       flex: 1 1 600px;
       position: relative;
-      aspect-ratio: 1 / 1;
+      width: 600px;
+      height: 600px;
       background: url('grid.png') center/contain no-repeat;
       border-radius: 10px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -166,7 +167,6 @@
 <script>
 const map = document.getElementById('map-container');
 const form = document.getElementById('marker-form');
-
 const maxCoord = 600;
 let markers = JSON.parse(localStorage.getItem('markers') || '[]');
 
@@ -180,17 +180,14 @@ const categoryLists = {
 
 function screenToCoord(clientX, clientY) {
   const rect = map.getBoundingClientRect();
-  const relX = (clientX - rect.left) / rect.width;
-  const relY = (clientY - rect.top) / rect.height;
-
-  const x = Math.round(relX * maxCoord);
-  const y = Math.round((1 - relY) * maxCoord);
-  return { x: Math.max(0, Math.min(maxCoord, x)), y: Math.max(0, Math.min(maxCoord, y)) };
+  const x = Math.round((clientX - rect.left) / rect.width * maxCoord);
+  const y = Math.round((1 - (clientY - rect.top) / rect.height) * maxCoord);
+  return { x, y };
 }
 
 function coordToScreen(x, y) {
   const rect = map.getBoundingClientRect();
-  const px = (x / maxCoord) * rect.width;
+  const px = x / maxCoord * rect.width;
   const py = (1 - y / maxCoord) * rect.height;
   return { x: px, y: py };
 }
