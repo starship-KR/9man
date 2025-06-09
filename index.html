@@ -1,51 +1,114 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>90K MAP</title>
   <style>
     body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 20px;
       background: #f0f3f5;
+      color: #333;
+      user-select: none;
       display: flex;
       flex-direction: column;
       align-items: center;
-      font-family: sans-serif;
     }
+
     #map-container {
       position: relative;
       width: 100%;
       max-width: 600px;
-      aspect-ratio: 1/1;
-      background: url('grid.png') center/contain no-repeat;
+      aspect-ratio: 1 / 1;
+      background-image: url('grid.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
       margin-bottom: 30px;
     }
+
     .info-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 16px;
       width: 100%;
       max-width: 1000px;
       padding: 10px;
     }
+
     .category, #form-container {
       background: white;
-      padding: 15px;
       border-radius: 8px;
       box-shadow: 0 0 6px rgba(0,0,0,0.05);
+      padding: 15px;
+      box-sizing: border-box;
     }
+
+    .category h3 {
+      margin-top: 0;
+      font-weight: 700;
+      color: #555;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 4px;
+    }
+
+    .marker-list {
+      list-style: none;
+      padding-left: 10px;
+      margin: 0;
+      max-height: 130px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+
     .marker-list li {
       margin-bottom: 6px;
+      color: #333;
+      user-select: text;
       word-break: break-word;
       white-space: normal;
     }
+
+    form label {
+      display: block;
+      margin: 8px 0 4px;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1.5px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 12px;
+      width: 100%;
+      padding: 10px;
+      background-color: #3498db;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
     .marker {
       position: absolute;
       display: flex;
       align-items: center;
       transform: translate(-50%, -100%);
+      cursor: pointer;
+      white-space: nowrap;
     }
+
     .marker-dot {
       width: 10px;
       height: 10px;
@@ -53,10 +116,18 @@
       margin-right: 6px;
       box-shadow: 0 0 4px rgba(0,0,0,0.5);
     }
+
+    .marker-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #222;
+      text-shadow: 0 0 2px white;
+    }
   </style>
 </head>
 <body>
   <div id="map-container"></div>
+
   <div class="info-grid">
     <div class="category"><h3>지원조</h3><ul id="list-support" class="marker-list"></ul></div>
     <div class="category"><h3>1조</h3><ul id="list-team1" class="marker-list"></ul></div>
@@ -66,29 +137,45 @@
     <div id="form-container">
       <h1>StarShip</h1>
       <form id="marker-form">
-        <label>이름 <input type="text" id="name" required></label>
-        <label>X (0~600) <input type="number" id="x" min="0" max="600" required></label>
-        <label>Y (0~600) <input type="number" id="y" min="0" max="600" required></label>
-        <label>색상 <select id="color">
-          <option value="#e74c3c">빨강</option><option value="#3498db">파랑</option>
+        <label for="name">이름</label>
+        <input type="text" id="name" required placeholder="이름 입력" />
+
+        <label for="x">X 좌표 (0 ~ 600)</label>
+        <input type="number" id="x" min="0" max="600" required />
+
+        <label for="y">Y 좌표 (0 ~ 600)</label>
+        <input type="number" id="y" min="0" max="600" required />
+
+        <label for="color">색상</label>
+        <select id="color" required>
+          <option value="#e74c3c">빨강</option>
+          <option value="#3498db">파랑</option>
           <option value="#2ecc71">초록</option>
-        </select></label>
-        <label>카테고리 <select id="category">
-          <option value="지원조">지원조</option><option value="1조">1조</option>
-          <option value="2조">2조</option><option value="3조">3조</option>
+        </select>
+
+        <label for="category">카테고리</label>
+        <select id="category" required>
+          <option value="지원조">지원조</option>
+          <option value="1조">1조</option>
+          <option value="2조">2조</option>
+          <option value="3조">3조</option>
           <option value="적맹주">적맹주</option>
-        </select></label>
+        </select>
+
         <button type="submit">추가</button>
       </form>
     </div>
   </div>
 
   <script>
-    const gridSize = 600;
-    const map = document.getElementById('map-container');
     const form = document.getElementById('marker-form');
-    let markers = JSON.parse(localStorage.getItem('markers') || '[]');
-    const lists = {
+    const map = document.getElementById('map-container');
+    const gridSize = 600;
+    const borderOffset = 20;
+
+    let savedMarkers = JSON.parse(localStorage.getItem('markers') || '[]');
+
+    const categoryLists = {
       '지원조': document.getElementById('list-support'),
       '1조': document.getElementById('list-team1'),
       '2조': document.getElementById('list-team2'),
@@ -96,83 +183,115 @@
       '적맹주': document.getElementById('list-enemy'),
     };
 
-    function getOffsets() {
-      const rect = map.getBoundingClientRect();
-      const imgRatio = rect.width / rect.height;
-      const bgSize = rect.height * (map.style.backgroundSize === 'contain' ? 1 : imgRatio);
-      const marginX = (rect.width - bgSize) / 2;
-      const marginY = (rect.height - bgSize) / 2;
-      return {offsetX: marginX, offsetY: marginY, usable: bgSize};
-    }
-
-    function screenToGrid(px, py) {
-      const {offsetX, offsetY, usable} = getOffsets();
-      const relX = (px - offsetX);
-      const relY = (py - offsetY);
-      const x = Math.min(gridSize, Math.max(0, Math.round((relX / usable) * gridSize)));
-      const y = Math.min(gridSize, Math.max(0, Math.round(gridSize - (relY / usable) * gridSize)));
-      return {x, y};
-    }
-
-    function gridToScreen(x, y) {
-      const {offsetX, offsetY, usable} = getOffsets();
-      const px = offsetX + (x / gridSize) * usable;
-      const py = offsetY + ((gridSize - y) / gridSize) * usable;
-      return {px, py};
-    }
-
-    function drawMarker(m) {
-      const {px, py} = gridToScreen(m.x, m.y);
+    function drawMarker({ name, x, y, color, category }) {
       const marker = document.createElement('div');
       marker.className = 'marker';
-      marker.style.left = px + 'px';
-      marker.style.top = py + 'px';
-      marker.innerHTML = `<div class="marker-dot" style="background:${m.color}"></div><span>${m.name}</span>`;
+
+      const w = map.clientWidth;
+      const h = map.clientHeight;
+
+      const px = (x / gridSize) * (w - 2 * borderOffset) + borderOffset;
+      const py = ((gridSize - y) / gridSize) * (h - 2 * borderOffset) + borderOffset;
+
+      marker.style.left = `${px}px`;
+      marker.style.top = `${py}px`;
+
+      const dot = document.createElement('div');
+      dot.className = 'marker-dot';
+      dot.style.backgroundColor = color;
+
+      const label = document.createElement('span');
+      label.className = 'marker-label';
+      label.textContent = name;
+
+      marker.appendChild(dot);
+      marker.appendChild(label);
+
+      marker.title = `'${name}' 마커 삭제하려면 클릭하세요`;
       marker.addEventListener('click', () => {
-        if(confirm('삭제하시겠어요?')) {
+        if(confirm(`'${name}' 마커를 삭제할까요?`)) {
           marker.remove();
-          markers = markers.filter(a => a !== m);
-          lists[m.category].querySelectorAll('li').forEach(li => {
-            if(li.textContent.startsWith(m.name + ' ')) li.remove();
-          });
-          localStorage.setItem('markers', JSON.stringify(markers));
+          deleteMarker(name, x, y, category);
         }
       });
+
       map.appendChild(marker);
-      const li = document.createElement('li');
-      li.textContent = `${m.name} (${m.x}, ${m.y})`;
-      lists[m.category].appendChild(li);
+
+      if(categoryLists[category]) {
+        const li = document.createElement('li');
+        li.textContent = `${name} (${x}, ${y})`;
+        categoryLists[category].appendChild(li);
+      }
     }
 
-    function init() {
-      document.querySelectorAll('.marker-list').forEach(ul => ul.innerHTML = '');
-      Array.from(map.children).forEach(c => c.remove());
-      markers.forEach(drawMarker);
+    function saveMarker(marker) {
+      savedMarkers.push(marker);
+      localStorage.setItem('markers', JSON.stringify(savedMarkers));
     }
+
+    function deleteMarker(name, x, y, category) {
+      savedMarkers = savedMarkers.filter(m =>
+        !(m.name === name && m.x === x && m.y === y && m.category === category)
+      );
+      localStorage.setItem('markers', JSON.stringify(savedMarkers));
+
+      if(categoryLists[category]) {
+        const lis = categoryLists[category].querySelectorAll('li');
+        lis.forEach(li => {
+          if(li.textContent.startsWith(name + ' ')) {
+            li.remove();
+          }
+        });
+      }
+    }
+
+    function loadMarkers() {
+      for(let cat in categoryLists) {
+        categoryLists[cat].innerHTML = '';
+      }
+      while(map.firstChild) {
+        map.removeChild(map.firstChild);
+      }
+      savedMarkers.forEach(drawMarker);
+    }
+
+    loadMarkers();
 
     form.addEventListener('submit', e => {
       e.preventDefault();
-      const m = {
-        name: form.name.value,
-        x: +form.x.value,
-        y: +form.y.value,
-        color: form.color.value,
-        category: form.category.value
-      };
-      markers.push(m);
-      localStorage.setItem('markers', JSON.stringify(markers));
-      drawMarker(m);
+
+      const name = document.getElementById('name').value.trim();
+      const x = parseInt(document.getElementById('x').value);
+      const y = parseInt(document.getElementById('y').value);
+      const color = document.getElementById('color').value;
+      const category = document.getElementById('category').value;
+
+      if(x < 0 || x > 600 || y < 0 || y > 600) {
+        alert('좌표는 0에서 600 사이여야 합니다.');
+        return;
+      }
+
+      const newMarker = { name, x, y, color, category };
+      drawMarker(newMarker);
+      saveMarker(newMarker);
       form.reset();
     });
 
     map.addEventListener('click', e => {
       const rect = map.getBoundingClientRect();
-      const coords = screenToGrid(e.clientX - rect.left, e.clientY - rect.top);
-      form.x.value = coords.x;
-      form.y.value = coords.y;
-    });
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
 
-    init();
+      const usableWidth = rect.width - 2 * borderOffset;
+      const usableHeight = rect.height - 2 * borderOffset;
+
+      const x = Math.round(((clickX - borderOffset) / usableWidth) * gridSize);
+      const y = Math.round(((clickY - borderOffset) / usableHeight) * gridSize);
+      const fixedY = gridSize - y;
+
+      document.getElementById('x').value = x;
+      document.getElementById('y').value = fixedY;
+    });
   </script>
 </body>
 </html>
