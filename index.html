@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StarShip</title>
+  <title>90K MAP</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -14,13 +14,14 @@
       background: #f0f3f5;
       color: #333;
       user-select: none;
+      flex-wrap: wrap;
     }
 
     #map-container {
       position: relative;
       width: 600px;
       height: 600px;
-      background-image: url('grid.png'); /* 이미지 파일명 수정됨 */
+      background-image: url('grid.png');
       background-size: cover;
       margin-right: 30px;
     }
@@ -53,6 +54,7 @@
     #sidebar {
       display: flex;
       flex-direction: row;
+      flex-wrap: wrap;
     }
 
     #form-container {
@@ -138,6 +140,47 @@
       color: #333;
       user-select: text;
     }
+
+    /* ✅ 반응형 스타일 추가 */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+        align-items: center;
+        margin: 10px;
+      }
+
+      #map-container {
+        margin-right: 0;
+        margin-bottom: 20px;
+        width: 100%;
+        max-width: 90vw;
+        aspect-ratio: 1 / 1;
+        background-size: contain;
+        background-repeat: no-repeat;
+      }
+
+      #sidebar {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #form-container {
+        width: 90%;
+        margin-right: 0;
+        margin-bottom: 20px;
+      }
+
+      .categories {
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .category {
+        width: 90%;
+        max-width: 300px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -145,7 +188,7 @@
 
   <div id="sidebar">
     <div id="form-container">
-      <h1>StarShip MAP</h1>
+      <h1>90K MAP</h1>
       <form id="marker-form">
         <label for="name">이름</label>
         <input type="text" id="name" required placeholder="이름 입력" />
@@ -158,14 +201,14 @@
 
         <label for="color">색상</label>
         <select id="color" required>
-          <option value="#e74c3c" style="color:#e74c3c;">빨강</option>
-          <option value="#e67e22" style="color:#e67e22;">주황</option>
-          <option value="#f1c40f" style="color:#f1c40f;">노랑</option>
-          <option value="#2ecc71" style="color:#2ecc71;">초록</option>
-          <option value="#1abc9c" style="color:#1abc9c;">청록</option>
-          <option value="#3498db" style="color:#3498db;">파랑</option>
-          <option value="#9b59b6" style="color:#9b59b6;">보라</option>
-          <option value="#7f8c8d" style="color:#7f8c8d;">회색</option>
+          <option value="#e74c3c">빨강</option>
+          <option value="#e67e22">주황</option>
+          <option value="#f1c40f">노랑</option>
+          <option value="#2ecc71">초록</option>
+          <option value="#1abc9c">청록</option>
+          <option value="#3498db">파랑</option>
+          <option value="#9b59b6">보라</option>
+          <option value="#7f8c8d">회색</option>
         </select>
 
         <label for="category">카테고리</label>
