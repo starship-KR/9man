@@ -32,7 +32,7 @@
       border-radius: 50%;
       cursor: pointer;
     }
-    .point:hover::after { /* ⭐ 툴팁 표시 */
+    .point:hover::after {
       content: attr(data-label);
       position: absolute;
       left: 12px;
@@ -46,7 +46,6 @@
       white-space: nowrap;
       z-index: 10;
     }
-
     .form-panel {
       background: white;
       padding: 20px;
@@ -64,6 +63,7 @@
     .form-panel button {
       width: 100%;
       padding: 10px;
+      margin-top: 5px;
       background: #3182ce;
       color: white;
       border: none;
@@ -130,7 +130,10 @@
         <option value="3조">3조</option>
         <option value="적맹주">적맹주</option>
       </select>
-      <button onclick="addPoint()">추가</button>
+      <button onclick="handleAdd()">추가</button>
+      <button onclick="saveData()">저장</button>
+      <button onclick="loadData()">불러오기</button>
+      <button onclick="clearAll()">초기화</button>
     </div>
 
     <div class="category-panel">
@@ -147,7 +150,7 @@
   <script>
     const map = document.getElementById("map");
 
-    function addPoint() {
+    function handleAdd() {
       const name = document.getElementById("name").value;
       const x = parseFloat(document.getElementById("x").value);
       const y = parseFloat(document.getElementById("y").value);
@@ -161,20 +164,23 @@
         return alert("좌표는 0~600 범위입니다");
       }
 
+      addPoint(name, x, y, color, category);
+    }
+
+    function addPoint(name, x, y, color, category, save = true) {
       const point = document.createElement("div");
       point.className = "point";
       point.style.left = `${x - 5}px`;
       point.style.bottom = `${y - 5}px`;
       point.style.background = color;
-      point.setAttribute("data-label", `${name} (${x}, ${y})`); // ⭐ 툴팁 텍스트 저장
-      point.setAttribute("data-name", name); // ⭐ 삭제 시 찾기 위해 이름 저장
-      point.setAttribute("data-category", category); // ⭐ 삭제 시 카테고리 추적
+      point.setAttribute("data-label", `${name} (${x}, ${y})`);
+      point.setAttribute("data-name", name);
+      point.setAttribute("data-category", category);
 
       point.onclick = () => {
         if (confirm(`${name} 마커를 삭제할까요?`)) {
           map.removeChild(point);
 
-          // ⭐ 카테고리 박스에서도 삭제
           const box = document.getElementById(category);
           const entries = [...box.children];
           for (let entry of entries) {
@@ -183,6 +189,8 @@
               break;
             }
           }
+
+          saveData(); // 마커 삭제 후 저장 갱신
         }
       };
 
@@ -192,7 +200,45 @@
       const entry = document.createElement("div");
       entry.innerText = `${name} (${x}, ${y})`;
       box.appendChild(entry);
+
+      if (save) saveData();
     }
+
+    function saveData() {
+      const points = [...document.querySelectorAll(".point")].map(p => ({
+        name: p.getAttribute("data-name"),
+        x: parseFloat(p.style.left) + 5,
+        y: parseFloat(p.style.bottom) + 5,
+        color: p.style.background,
+        category: p.getAttribute("data-category")
+      }));
+      localStorage.setItem("starshipPoints", JSON.stringify(points));
+      alert("저장 완료!");
+    }
+
+    function loadData() {
+      const data = JSON.parse(localStorage.getItem("starshipPoints") || "[]");
+      clearAll(false); // 기존 마커 제거 (저장 제거 X)
+      for (const p of data) {
+        addPoint(p.name, p.x, p.y, p.color, p.category, false);
+      }
+      alert("불러오기 완료!");
+    }
+
+    function clearAll(save = true) {
+      map.innerHTML = "";
+      document.querySelectorAll(".box").forEach(box => {
+        [...box.children].forEach(child => {
+          if (!child.matches("h3")) box.removeChild(child);
+        });
+      });
+      if (save) {
+        localStorage.removeItem("starshipPoints");
+        alert("모든 데이터 초기화됨");
+      }
+    }
+
+    window.onload = loadData;
   </script>
 </body>
 </html>
